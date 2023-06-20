@@ -270,7 +270,7 @@ fluidPage(
     tabPanel(
       "Data catalogue",
       ### 2.2.1 Filters ----
-      fluidRow(column(12, h2("Filter to find a relevent table"))),
+      fluidRow(column(12, h2("Filter to find a relevant table"))),
       fluidRow(
         column(
           4,
