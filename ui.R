@@ -207,14 +207,16 @@ fluidPage(
           div(
             class = "panel-heading",
             style = "color: white;font-size: 18px;font-style: bold; background-color: #1d70b8;",
-            h2("How to use this dashboard")
+            h2("Dashboard structure")
           ),
           div(
             class = "panel-body",
             p("Use the navigation bar on the left to select the tab you want to view."),
-            h2("Dashboard structure"),
             tags$ul(
               tags$li(actionLink("link_to_tabpanel_catalogue", "Data catalogue"), " - this tab has a searchable catalogue of skills data."),
+            ),
+            tags$ul(
+              tags$li(actionLink("link_to_tabpanel_pubs", "Publications"), " - this tab has a list of relevant skills data publications."),
             )
           )
         )
@@ -267,15 +269,8 @@ fluidPage(
     ## 2.2 Variables table----
     tabPanel(
       "Data catalogue",
-      fluidRow(column(
-        12,
-        h1("Skills data sources"),
-        p(
-          "Use the filters to find a relevant dataset."
-        )
-      )),
       ### 2.2.1 Filters ----
-      fluidRow(column(12, h2("Inputs"))),
+      fluidRow(column(12, h2("Filter to find a relevent table"))),
       fluidRow(
         column(
           4,
@@ -325,10 +320,7 @@ fluidPage(
       "List of publications",
       fluidRow(column(
         12,
-        h1("Skills data publications"),
-        p(
-          "List of relevant skills publications."
-        )
+        h1("Skills data publications")
       )),
       ### 2.3.1 Table ----
       fluidRow(column(

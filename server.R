@@ -95,9 +95,14 @@ server <- function(input, output, session) {
   # 2 Main page ----
   ## 2.1 Homepage ----
   ### 2.1.1 Make links ----
-  # Create link to overview tab
+  # Create link to data catalogue tab
   observeEvent(input$link_to_tabpanel_catalogue, {
     updateTabsetPanel(session, "navbar", "Data catalogue")
+  })
+
+  # Create link to publications tab
+  observeEvent(input$link_to_tabpanel_pubs, {
+    updateTabsetPanel(session, "navbar", "List of publications")
   })
 
   ## 2.2 DataHub filters----
