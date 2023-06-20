@@ -1,66 +1,15 @@
-# ---------------------------------------------------------
-# This is the server file.
-# Use it to create interactive elements like tables, charts and text for your app.
-#
-# Anything you create in the server file won't appear in your app until you call it in the UI file.
-# This server script gives an example of a plot and value box that updates on slider input.
-# There are many other elements you can add in too, and you can play around with their reactivity.
-# The "outputs" section of the shiny cheatsheet has a few examples of render calls you can use:
-# https://shiny.rstudio.com/images/shiny-cheatsheet.pdf
-#
-#
-# This is the server logic of a Shiny web application. You can run th
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-# ---------------------------------------------------------
-
-
 server <- function(input, output, session) {
-  # Loading screen ---------------------------------------------------------------------------
+  # 1 Set up ----
+  ## 1.1 Loading screen ----
   # Call initial loading screen
-
-  hide(id = "loading-content", anim = TRUE, animType = "fade")
+  hide(
+    id = "loading-content",
+    anim = TRUE,
+    animType = "fade"
+  )
   show("app-content")
-
-  # The template uses bookmarking to store input choices in the url. You can
-  # exclude specific inputs using the list here:
-  setBookmarkExclude(c("cookies", "link_to_app_content_tab"))
-
-  observe({
-    # Trigger this observer every time an input changes
-    reactiveValuesToList(input)
-    session$doBookmark()
-  })
-
-  onBookmarked(function(url) {
-    updateQueryString(url)
-  })
-
-  observe({
-    if (input$navlistPanel == "dashboard") {
-      change_window_title(
-        session,
-        paste0(
-          site_title, " - ",
-          input$selectPhase, ", ",
-          input$selectArea
-        )
-      )
-    } else {
-      change_window_title(
-        session,
-        paste0(
-          site_title, " - ",
-          input$navlistPanel
-        )
-      )
-    }
-  })
-
+  
+  ## 1.3 Set up cookies
   # output if cookie is unspecified
   observeEvent(input$cookies, {
     if (!is.null(input$cookies)) {
@@ -99,7 +48,7 @@ server <- function(input, output, session) {
       }
     }
   })
-
+  
   observeEvent(input$cookie_consent, {
     msg <- list(
       name = "dfe_analytics",
@@ -116,17 +65,17 @@ server <- function(input, output, session) {
       }
     }
   })
-
+  
   observeEvent(input$remove, {
     msg <- list(name = "dfe_analytics", value = "denied")
     session$sendCustomMessage("cookie-remove", msg)
     session$sendCustomMessage("analytics-consent", msg)
   })
-
+  
   cookies_data <- reactive({
     input$cookies
   })
-
+  
   output$cookie_status <- renderText({
     cookie_text_stem <- "To better understand the reach of our dashboard tools, this site uses cookies to identify numbers of unique users as part of Google Analytics. You have chosen to"
     cookie_text_tail <- "the use of cookies on this website."
@@ -139,211 +88,180 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      "Cookies consent has not been confirmed."
+      paste("Cookies consent has not been confirmed.")
     }
   })
+  
+  # 2 Main page ----
+  ## 2.1 Homepage ----
+  ### 2.1.1 Make links ----
+  # Create link to overview tab
+  observeEvent(input$link_to_tabpanel_catalogue, {
+    updateTabsetPanel(session, "navbar", "Data catalogue")
+  })
+  
+  ## 2.4 List of publications----
+  ### 2.4.2 Table----
+  output$pubTable <- renderDataTable({
+    DT::datatable(C_AllVar,options = list(dom = 'tp'#turn off search but keep pagination
+                                          ,columnDefs = list(list(width = '1px', targets = "_all"))#for some reaosn this sets cilumns equal, which helps keep the filter wide
+                                          )
+                  , filter = list(position = "top")#add filters
+                  , rownames = FALSE)#get rid of rownames
+  })
+  
+  # # Download button
+  # filtered_data1 <- reactive({
+  #   list("SkillsDatsets" = selectedDataset())
+  # })
+  # output$hubDownload <- downloadHandler(
+  #   filename = function() {
+  #     "SkillsDataset.xlsx"
+  #   },
+  #   content = function(file) {
+  #     write_xlsx(filtered_data1(), path = file)
+  #   }
+  # )
+  
 
-
-  #  output$cookie_status <- renderText(as.character(input$cookies))
-
-  # Simple server stuff goes here ------------------------------------------------------------
-  reactiveRevBal <- reactive({
-    dfRevBal %>% filter(
-      area_name == input$selectArea | area_name == "England",
-      school_phase == input$selectPhase
+  ## 2.4 DataHub filters----
+  ### 2.4.1 Filters----
+  # output$sourceInput <- renderUI({
+  #   print("FSource")
+  #   print(input$sourceChoice)
+  #   print(input$publicationChoice)
+  #   print(input$variableChoice)
+  #   selectizeInput(
+  #     "sourceChoice",
+  #     multiple = TRUE,
+  #     label = NULL,
+  #     options = list(placeholder = "Choose a source"),
+  #     choices = C_AllVar %>%
+  #       # filter(if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice}
+  #       #        ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice})%>%
+  #       distinct(Source)
+  #   )
+  # })
+  
+  observeEvent(input$publicationChoice, {
+    updateSelectizeInput(session, "variableChoice",
+                         choices = (C_AllVar %>%
+                           filter(Publication %in% input$publicationChoice)%>%
+                           distinct(Variables))$Variables
+    )
+    updateSelectizeInput(session, "sourceChoice",
+                         choices = (C_AllVar %>%
+                                      filter(Publication %in% input$publicationChoice)%>%
+                                      distinct(Source))$Source
     )
   })
-
-  # Define server logic required to draw a histogram
-  output$lineRevBal <- renderPlotly({
-    ggplotly(createAvgRevTimeSeries(reactiveRevBal(), input$selectArea)) %>%
-      config(displayModeBar = F) %>%
-      layout(legend = list(orientation = "h", x = 0, y = -0.2))
+  
+  # output$publicationInput <- renderUI({
+  #   print("FPub")
+  #   print(input$sourceChoice)
+  #   print(input$publicationChoice)
+  #   print(input$variableChoice)
+  #   selectizeInput(
+  #     "publicationChoice",
+  #     multiple = TRUE,
+  #     label = NULL,
+  #     options = list(placeholder = "Choose a publication"),
+  #     choices = 
+  #       C_AllVar %>%
+  #         filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
+  #                ,if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice})%>%
+  #         distinct(Publication)
+  #   )
+  # })
+  
+  observeEvent(input$sourceChoice, {
+    updateSelectizeInput(session, "publicationChoice",
+                         choices = (C_AllVar %>%
+                           filter(Source %in% input$sourceChoice)%>%
+                           distinct(Publication))$Publication
+    )
+    updateSelectizeInput(session, "variableChoice",
+                         choices = (C_AllVar %>%
+                                      filter(Source %in% input$sourceChoice)%>%
+                                      distinct(Variables))$Variables
+    )
   })
-
-  reactiveBenchmark <- reactive({
-    dfRevBal %>%
+  
+  observeEvent(input$variableChoice, {
+    updateSelectizeInput(session, "publicationChoice",
+                         choices = (C_AllVar %>%
+                                      filter(Variables %in% input$variableChoice)%>%
+                                      distinct(Publication))$Publication
+    )
+    updateSelectizeInput(session, "sourceChoice",
+                         choices = (C_AllVar %>%
+                                      filter(Variables %in% input$variableChoice)%>%
+                                      distinct(Source))$Source
+    )
+  })
+  
+#   output$variableInput <- renderUI({
+#     print("FVariable")
+#     print(input$sourceChoice)
+#     print(input$publicationChoice)
+#     print(input$variableChoice)
+#     selectizeInput(
+#       "variableChoice",
+#       multiple = TRUE,
+#       label = NULL,
+#       options = list(placeholder = "Choose variables"),
+#       choices = C_AllVar %>%
+#         filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
+#                ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice}
+# )%>%
+#         distinct(Variables)
+#       
+#     )
+#   })
+  
+  ### 2.4.2 Table----
+  selectedDataset <- reactive({
+    C_AllVar%>%
       filter(
-        area_name %in% c(input$selectArea, input$selectBenchLAs),
-        school_phase == input$selectPhase,
-        year == max(year)
+        if (is.null(input$sourceChoice) == TRUE) {
+          TRUE
+        } else {
+          Source %in%  input$sourceChoice
+        },
+        if (is.null(input$publicationChoice) == TRUE) {
+          TRUE
+        } else {
+            Publication %in% input$publicationChoice
+        },
+        if (is.null(input$variableChoice) == TRUE) {
+          TRUE
+        } else {
+          Variables %in% input$variableChoice
+        }
       )
   })
-
-  output$colBenchmark <- renderPlotly({
-    ggplotly(
-      plotAvgRevBenchmark(reactiveBenchmark()) %>%
-        config(displayModeBar = F),
-      height = 420
+  
+  output$hubTable2 <- renderDataTable({
+    DT::datatable(selectedDataset()%>%
+                    distinct(Source,Publication,Table),options = list(dom = 'tp'#turn off search but keep pagination
     )
+    , rownames = FALSE)#get rid of rownames
   })
-
-  output$tabBenchmark <- renderDataTable({
-    datatable(
-      reactiveBenchmark() %>%
-        select(
-          Area = area_name,
-          `Average Revenue Balance (£)` = average_revenue_balance,
-          `Total Revenue Balance (£m)` = total_revenue_balance_million
-        ),
-      options = list(
-        scrollX = TRUE,
-        paging = FALSE
-      )
-    )
+  
+  # Download button
+  filtered_data1 <- reactive({
+    list("SkillsDatsets" = selectedDataset())
   })
-
-  # Define server logic to create a box
-
-  output$boxavgRevBal <- renderValueBox({
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(
-        (reactiveRevBal() %>% filter(
-          year == max(year),
-          area_name == input$selectArea,
-          school_phase == input$selectPhase
-        ))$average_revenue_balance,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the latest value for the selected inputs"),
-      color = "blue"
-    )
-  })
-
-  output$boxpcRevBal <- renderValueBox({
-    latest <- (reactiveRevBal() %>% filter(
-      year == max(year),
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-    penult <- (reactiveRevBal() %>% filter(
-      year == max(year) - 1,
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(latest - penult,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the change on previous year"),
-      color = "blue"
-    )
-  })
-
-  output$boxavgRevBal_small <- renderValueBox({
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(
-        (reactiveRevBal() %>% filter(
-          year == max(year),
-          area_name == input$selectArea,
-          school_phase == input$selectPhase
-        ))$average_revenue_balance,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the latest value for the selected inputs"),
-      color = "orange",
-      fontsize = "small"
-    )
-  })
-
-  output$boxpcRevBal_small <- renderValueBox({
-    latest <- (reactiveRevBal() %>% filter(
-      year == max(year),
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-    penult <- (reactiveRevBal() %>% filter(
-      year == max(year) - 1,
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(latest - penult,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the change on previous year"),
-      color = "orange",
-      fontsize = "small"
-    )
-  })
-
-  output$boxavgRevBal_large <- renderValueBox({
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(
-        (reactiveRevBal() %>% filter(
-          year == max(year),
-          area_name == input$selectArea,
-          school_phase == input$selectPhase
-        ))$average_revenue_balance,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the latest value for the selected inputs"),
-      color = "green",
-      fontsize = "large"
-    )
-  })
-
-  output$boxpcRevBal_large <- renderValueBox({
-    latest <- (reactiveRevBal() %>% filter(
-      year == max(year),
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-    penult <- (reactiveRevBal() %>% filter(
-      year == max(year) - 1,
-      area_name == input$selectArea,
-      school_phase == input$selectPhase
-    ))$average_revenue_balance
-
-    # Put value into box to plug into app
-    valueBox(
-      # take input number
-      paste0("£", format(latest - penult,
-        big.mark = ","
-      )),
-      # add subtitle to explain what it's hsowing
-      paste0("This is the change on previous year"),
-      color = "green",
-      fontsize = "large"
-    )
-  })
-
-
-
-
-
-  observeEvent(input$link_to_app_content_tab, {
-    updateTabsetPanel(session, "navlistPanel", selected = "dashboard")
-  })
-
-  # Download the underlying data button
-  output$download_data <- downloadHandler(
-    filename = "shiny_template_underlying_data.csv",
+  output$hubDownload <- downloadHandler(
+    filename = function() {
+      "SkillsDataset.xlsx"
+    },
     content = function(file) {
-      write.csv(dfRevBal, file)
+      write_xlsx(filtered_data1(), path = file)
     }
   )
-
-
-  # Stop app ---------------------------------------------------------------------------------
-
+  
+  # 3.Stop app -----
   session$onSessionEnded(function() {
     stopApp()
   })
