@@ -8,7 +8,7 @@ server <- function(input, output, session) {
     animType = "fade"
   )
   show("app-content")
-  
+
   ## 1.3 Set up cookies
   # output if cookie is unspecified
   observeEvent(input$cookies, {
@@ -48,7 +48,7 @@ server <- function(input, output, session) {
       }
     }
   })
-  
+
   observeEvent(input$cookie_consent, {
     msg <- list(
       name = "dfe_analytics",
@@ -65,17 +65,17 @@ server <- function(input, output, session) {
       }
     }
   })
-  
+
   observeEvent(input$remove, {
     msg <- list(name = "dfe_analytics", value = "denied")
     session$sendCustomMessage("cookie-remove", msg)
     session$sendCustomMessage("analytics-consent", msg)
   })
-  
+
   cookies_data <- reactive({
     input$cookies
   })
-  
+
   output$cookie_status <- renderText({
     cookie_text_stem <- "To better understand the reach of our dashboard tools, this site uses cookies to identify numbers of unique users as part of Google Analytics. You have chosen to"
     cookie_text_tail <- "the use of cookies on this website."
@@ -91,7 +91,7 @@ server <- function(input, output, session) {
       paste("Cookies consent has not been confirmed.")
     }
   })
-  
+
   # 2 Main page ----
   ## 2.1 Homepage ----
   ### 2.1.1 Make links ----
@@ -99,86 +99,62 @@ server <- function(input, output, session) {
   observeEvent(input$link_to_tabpanel_catalogue, {
     updateTabsetPanel(session, "navbar", "Data catalogue")
   })
-  
-  ## 2.4 List of publications----
-  ### 2.4.2 Table----
-  output$pubTable <- DT::renderDataTable({
-    DT::datatable(C_Pubs,options = list(dom = 't'#turn off search
-                                          #,columnDefs = list(list(width = '1px', targets = "_all"))#for some reaosn this sets cilumns equal, which helps keep the filter wide
-                                          )
-                  , escape = FALSE #allow hyperlink
-                  ,rownames = FALSE)#get rid of rownames
-  })
-  
-  # # Download button
-  # filtered_data1 <- reactive({
-  #   list("SkillsDatsets" = selectedDataset())
-  # })
-  # output$hubDownload <- downloadHandler(
-  #   filename = function() {
-  #     "SkillsDataset.xlsx"
-  #   },
-  #   content = function(file) {
-  #     write_xlsx(filtered_data1(), path = file)
-  #   }
-  # )
-  
 
-  ## 2.4 DataHub filters----
-  ### 2.4.1 Filters----
-  
+  ## 2.2 DataHub filters----
+  ### 2.2.1 Filters----
+
   observeEvent(input$publicationChoice, {
     updateSelectizeInput(session, "variableChoice",
-                         choices = (C_AllVar %>%
-                           filter(Publication %in% input$publicationChoice)%>%
-                           distinct(Variables))$Variables
+      choices = (C_AllVar %>%
+        filter(Publication %in% input$publicationChoice) %>%
+        distinct(Variables))$Variables
     )
     updateSelectizeInput(session, "sourceChoice",
-                         choices = (C_AllVar %>%
-                                      filter(Publication %in% input$publicationChoice)%>%
-                                      distinct(Source))$Source
+      choices = (C_AllVar %>%
+        filter(Publication %in% input$publicationChoice) %>%
+        distinct(Source))$Source
     )
   })
-  
+
   observeEvent(input$sourceChoice, {
     updateSelectizeInput(session, "publicationChoice",
-                         choices = (C_AllVar %>%
-                           filter(Source %in% input$sourceChoice)%>%
-                           distinct(Publication))$Publication
+      choices = (C_AllVar %>%
+        filter(Source %in% input$sourceChoice) %>%
+        distinct(Publication))$Publication
     )
     updateSelectizeInput(session, "variableChoice",
-                         choices = (C_AllVar %>%
-                                      filter(Source %in% input$sourceChoice)%>%
-                                      distinct(Variables))$Variables
+      choices = (C_AllVar %>%
+        filter(Source %in% input$sourceChoice) %>%
+        distinct(Variables))$Variables
     )
   })
-  
+
   observeEvent(input$variableChoice, {
     updateSelectizeInput(session, "publicationChoice",
-                         choices = (C_AllVar %>%
-                                      filter(Variables %in% input$variableChoice)%>%
-                                      distinct(Publication))$Publication
+      choices = (C_AllVar %>%
+        filter(Variables %in% input$variableChoice) %>%
+        distinct(Publication))$Publication
     )
     updateSelectizeInput(session, "sourceChoice",
-                         choices = (C_AllVar %>%
-                                      filter(Variables %in% input$variableChoice)%>%
-                                      distinct(Source))$Source
+      choices = (C_AllVar %>%
+        filter(Variables %in% input$variableChoice) %>%
+        distinct(Source))$Source
     )
   })
-  
-  ### 2.4.2 Table----
+
+  ### 2.2.2 Table----
   selectedDataset <- reactive({
-    C_AllVar%>%
+    C_AllVar %>%
       filter(
         if (is.null(input$sourceChoice) == TRUE) {
           TRUE
         } else {
-          Source %in%  input$sourceChoice
+          Source %in% input$sourceChoice
         },
         if (is.null(input$publicationChoice) == TRUE) {
           TRUE
         } else {
-            Publication %in% input$publicationChoice
+          Publication %in% input$publicationChoice
         },
         if (is.null(input$variableChoice) == TRUE) {
           TRUE
@@ -187,27 +163,26 @@ server <- function(input, output, session) {
         }
       )
   })
-  
+
   output$hubTable2 <- renderDataTable({
-    DT::datatable(selectedDataset()%>%
-                    distinct(Source,Publication,Table),options = list(dom = 'tp'#turn off search but keep pagination
-    )
-    , rownames = FALSE)#get rid of rownames
+    DT::datatable(
+      selectedDataset() %>%
+        distinct(Source, Publication, Table),
+      options = list(dom = "tp") # turn off search but keep pagination
+      , rownames = FALSE
+    ) # get rid of rownames
   })
-  
-  # Download button
-  filtered_data1 <- reactive({
-    list("SkillsDatsets" = selectedDataset())
+
+  ## 2.3 List of publications----
+  ### 2.3.2 Table----
+  output$pubTable <- DT::renderDataTable({
+    DT::datatable(C_Pubs,
+      options = list(dom = "t") # turn off search
+      , escape = FALSE # allow hyperlink
+      , rownames = FALSE
+    ) # get rid of rownames
   })
-  output$hubDownload <- downloadHandler(
-    filename = function() {
-      "SkillsDataset.xlsx"
-    },
-    content = function(file) {
-      write_xlsx(filtered_data1(), path = file)
-    }
-  )
-  
+
   # 3.Stop app -----
   session$onSessionEnded(function() {
     stopApp()

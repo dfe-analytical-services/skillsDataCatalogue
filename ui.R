@@ -25,7 +25,7 @@ fluidPage(
       href = "dfe_shiny_gov_style.css"
     )
   ),
-  
+
   # Set metadata for browser
   tags$html(lang = "en"),
   tags$head(
@@ -33,7 +33,7 @@ fluidPage(
     tags$meta(name = "description", content = "Data dashboard presenting a skills data catalogue from the Unit for Future Skills in the Department for Education."),
     tags$meta(name = "subject", content = "Education data dashboards.")
   ),
-  
+
   # Set title for search engines
   HTML("<title>Skills data catalogue</title>"),
   # Setting up cookie consent based on a cookie recording the consent:
@@ -48,7 +48,7 @@ fluidPage(
     tags$script(src = "cookie-consent.js")
   ),
   tags$head(includeHTML(("google-analytics.html"))),
-  
+
   ## 1.2. Internal CSS ----
   tags$head(
     tags$style(
@@ -130,7 +130,7 @@ fluidPage(
       )
     )
   ),
-  
+
   # Force the top nav bar to left align and centre the title
   HTML(
     '<header class="govuk-header" role="banner">
@@ -151,7 +151,7 @@ fluidPage(
     </div>
     </header>'
   ),
-  
+
   # Add bug header
   HTML(
     '<div class="govuk-phase-banner govuk-width-container govuk-main-wrapper" id="beta banner" style="margin-left:0px;margin-right:0px">
@@ -162,14 +162,14 @@ fluidPage(
   </p>
 </div>'
   ),
-  
+
   # 2 Main page ----
   navlistPanel(
     id = "navbar",
     widths = c(2, 10),
     well = FALSE,
     selected = "Data catalogue",
-    
+
     ## 2.1 User guide ----
     tabPanel(
       "User guide",
@@ -198,7 +198,7 @@ fluidPage(
         )
       )),
       # end intro text row
-      
+
       ### 2.1.2 Contents ----
       fluidRow(column(
         12,
@@ -220,7 +220,7 @@ fluidPage(
         )
       )),
       # end of dashboard contents row
-      
+
       ### 2.1.3 Version control ----
       fluidRow(column(
         12,
@@ -263,35 +263,8 @@ fluidPage(
       )) # end of version control row
     ),
     # end of homepage Panel
-    
-    ## 2.4 Download hub ----
-    tabPanel(
-      "List of publications",
-      fluidRow(column(
-        12,
-        h1("Skills data sources"),
-        p(
-          "Use the filters to find a relevant dataset."
-        )
-      )),
-      ### 2.4.2 Datahub table ----
-      fluidRow(column(
-        12,
-        dataTableOutput("pubTable")
-      ))
-    #   br(),
-    #   fluidRow(column(
-    #     3,
-    #     downloadButton(
-    #       outputId = "hubDownload",
-    #       label = "Download this data",
-    #       icon = shiny::icon("download"),
-    #       class = "downloadButton"
-    #     )
-    #   )),
-     ),
-    
-    ## 2.4 Download hub filters----
+
+    ## 2.2 Variables table----
     tabPanel(
       "Data catalogue",
       fluidRow(column(
@@ -301,7 +274,7 @@ fluidPage(
           "Use the filters to find a relevant dataset."
         )
       )),
-      ## 2.4.1 Datahub filters ----
+      ### 2.2.1 Filters ----
       fluidRow(column(12, h2("Inputs"))),
       fluidRow(
         column(
@@ -312,8 +285,6 @@ fluidPage(
             label = NULL,
             options = list(placeholder = "Choose a source"),
             choices = C_AllVar %>%
-              # filter(if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice}
-              #        ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice})%>%
               distinct(Source)
           )
         ),
@@ -324,13 +295,10 @@ fluidPage(
             multiple = TRUE,
             label = NULL,
             options = list(placeholder = "Choose a publication"),
-            choices = 
+            choices =
               C_AllVar %>%
-              # filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
-              #        ,if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice})%>%
-              distinct(Publication)
+                distinct(Publication)
           )
-          #uiOutput("publicationInput")
         ),
         column(
           4,
@@ -340,33 +308,37 @@ fluidPage(
             label = NULL,
             options = list(placeholder = "Choose variables"),
             choices = C_AllVar %>%
-              # filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
-              #        ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice}
-              # )%>%
               distinct(Variables)
-            
           )
-          #uiOutput("variableInput")
         )
       ),
-      ### 2.4.2 Datahub table ----
+      ### 2.2.2 Table ----
       fluidRow(column(
         12,
         dataTableOutput("hubTable2")
       )),
-      br(),
+      br()
+    ),
+
+    ## 2.3 Publications ----
+    tabPanel(
+      "List of publications",
       fluidRow(column(
-        3,
-        downloadButton(
-          outputId = "hubDownload",
-          label = "Download this data",
-          icon = shiny::icon("download"),
-          class = "downloadButton"
+        12,
+        h1("Skills data publications"),
+        p(
+          "List of relevant skills publications."
         )
       )),
+      ### 2.3.1 Table ----
+      fluidRow(column(
+        12,
+        dataTableOutput("pubTable")
+      )),
+      br()
     ),
-    
-    ## 2.8 Accessibility ----
+
+    ## 2.4 Accessibility ----
     tabPanel(
       "Accessibility",
       fluidRow(
@@ -422,8 +394,8 @@ fluidPage(
       )
     ),
     # End of accessibility tab
-    
-    ## 2.9 Support ----
+
+    ## 2.5 Support ----
     tabPanel(
       "Support and feedback",
       support_links() # defined in R/supporting_links.R))
@@ -431,6 +403,6 @@ fluidPage(
   ),
   # End of navBarPage
   # 3 Footer ----
-  
+
   shinyGovstyle::footer(TRUE)
 )
