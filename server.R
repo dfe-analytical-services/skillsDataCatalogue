@@ -102,12 +102,12 @@ server <- function(input, output, session) {
   
   ## 2.4 List of publications----
   ### 2.4.2 Table----
-  output$pubTable <- renderDataTable({
-    DT::datatable(C_AllVar,options = list(dom = 'tp'#turn off search but keep pagination
-                                          ,columnDefs = list(list(width = '1px', targets = "_all"))#for some reaosn this sets cilumns equal, which helps keep the filter wide
+  output$pubTable <- DT::renderDataTable({
+    DT::datatable(C_Pubs,options = list(dom = 't'#turn off search
+                                          #,columnDefs = list(list(width = '1px', targets = "_all"))#for some reaosn this sets cilumns equal, which helps keep the filter wide
                                           )
-                  , filter = list(position = "top")#add filters
-                  , rownames = FALSE)#get rid of rownames
+                  , escape = FALSE #allow hyperlink
+                  ,rownames = FALSE)#get rid of rownames
   })
   
   # # Download button
@@ -126,22 +126,6 @@ server <- function(input, output, session) {
 
   ## 2.4 DataHub filters----
   ### 2.4.1 Filters----
-  # output$sourceInput <- renderUI({
-  #   print("FSource")
-  #   print(input$sourceChoice)
-  #   print(input$publicationChoice)
-  #   print(input$variableChoice)
-  #   selectizeInput(
-  #     "sourceChoice",
-  #     multiple = TRUE,
-  #     label = NULL,
-  #     options = list(placeholder = "Choose a source"),
-  #     choices = C_AllVar %>%
-  #       # filter(if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice}
-  #       #        ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice})%>%
-  #       distinct(Source)
-  #   )
-  # })
   
   observeEvent(input$publicationChoice, {
     updateSelectizeInput(session, "variableChoice",
@@ -155,24 +139,6 @@ server <- function(input, output, session) {
                                       distinct(Source))$Source
     )
   })
-  
-  # output$publicationInput <- renderUI({
-  #   print("FPub")
-  #   print(input$sourceChoice)
-  #   print(input$publicationChoice)
-  #   print(input$variableChoice)
-  #   selectizeInput(
-  #     "publicationChoice",
-  #     multiple = TRUE,
-  #     label = NULL,
-  #     options = list(placeholder = "Choose a publication"),
-  #     choices = 
-  #       C_AllVar %>%
-  #         filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
-  #                ,if(is.null(input$variableChoice) == TRUE) {TRUE} else {Variables %in% input$variableChoice})%>%
-  #         distinct(Publication)
-  #   )
-  # })
   
   observeEvent(input$sourceChoice, {
     updateSelectizeInput(session, "publicationChoice",
@@ -199,25 +165,6 @@ server <- function(input, output, session) {
                                       distinct(Source))$Source
     )
   })
-  
-#   output$variableInput <- renderUI({
-#     print("FVariable")
-#     print(input$sourceChoice)
-#     print(input$publicationChoice)
-#     print(input$variableChoice)
-#     selectizeInput(
-#       "variableChoice",
-#       multiple = TRUE,
-#       label = NULL,
-#       options = list(placeholder = "Choose variables"),
-#       choices = C_AllVar %>%
-#         filter(if(is.null(input$sourceChoice) == TRUE) {TRUE} else {Source %in% input$sourceChoice}
-#                ,if(is.null(input$publicationChoice) == TRUE) {TRUE} else {Publication %in% input$publicationChoice}
-# )%>%
-#         distinct(Variables)
-#       
-#     )
-#   })
   
   ### 2.4.2 Table----
   selectedDataset <- reactive({

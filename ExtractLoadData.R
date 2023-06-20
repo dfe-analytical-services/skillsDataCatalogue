@@ -10,6 +10,10 @@
 library(openxlsx) # use read.xlsx, read.csv
 
 # 1.Variables ----
-## 1.1 Load all variales list ----
+## 1.1 Load all variables list ----
 sheetNum <- "AllVar"
-I_AllVar <- read.xlsx(xlsxFile = "R/skillsDataCatalogue/Data/SkillsDataUFS.xlsx", sheet = sheetNum, skipEmptyRows = T)
+I_AllVar <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
+
+## 1.1 Load all variables list ----
+sheetNum <- "List of publications"
+I_Pubs <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
