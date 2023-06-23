@@ -170,7 +170,7 @@ fluidPage(
     well = FALSE,
     selected = "Data catalogue",
 
-    ## 2.1 User guide ----
+    ## 2.1 User guide ---- 
     tabPanel(
       "User guide",
       ### 2.1.1 Intro ----
