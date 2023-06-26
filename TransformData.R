@@ -22,7 +22,13 @@ C_AllVar <- I_AllVar %>%
   pivot_longer(!c("Source", , "Publication", "Table"), names_to = "Variables", values_to = "count") %>% # make long
   filter(count == "x") %>% # just keep data
   select(-count) %>%
-  mutate(Variables = str_to_sentence(gsub("_", " ", Variables))) # Tidy variable names
+  mutate(Variables = str_to_sentence(gsub("_", " ", Variables)))%>% # Tidy variable names
+  #add on all variables
+  left_join(
+  C_AllVar%>%
+  group_by(Source, Publication, Table) %>%
+  summarise(AllVariables = toString(Variables)) %>%
+  ungroup())
 write.csv(C_AllVar, file = "./Data/AppData/C_AllVar.csv", row.names = FALSE)
 
 # Tidy up publications table
