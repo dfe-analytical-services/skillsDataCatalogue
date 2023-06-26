@@ -172,12 +172,19 @@ server <- function(input, output, session) {
   output$hubTable2 <- renderDataTable({
     DT::datatable(
       selectedDataset() %>%
-        distinct(Source, Publication, Table),
-      options = list(dom = "tp") # turn off search but keep pagination
-      , rownames = FALSE
-    ) # get rid of rownames
+        distinct(Source, Publication, Table,AllVariables),
+      options = list(dom = "tp" # turn off search but keep pagination
+                     ,rowCallback = JS("function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
+                                      "var full_text = 'Variables in this table: ' + aData[3]",
+                                      "$('td:eq(2)', nRow).attr('data-title', full_text);",
+                                      "}")   
+                     ,columnDefs = list(list(visible=FALSE, targets=c(3)))
+      )
+      , rownames = FALSE # get rid of rownames
+               
+    ) 
   })
-
+  
   ## 2.3 List of publications----
   ### 2.3.2 Table----
   output$pubTable <- DT::renderDataTable({
