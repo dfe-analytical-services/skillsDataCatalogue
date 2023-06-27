@@ -105,7 +105,7 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "navbar", "List of publications")
   })
 
-  ## 2.2 DataHub filters----
+  ## 2.2 Table filters----
   ### 2.2.1 Filters----
 
   observeEvent(input$publicationChoice, {
@@ -166,14 +166,31 @@ server <- function(input, output, session) {
         } else {
           Variables %in% input$variableChoice
         }
+      )%>%
+      count(Source, Publication, Table,AllVariables,name="Chosen variables count")%>%
+      arrange(
+        if(is.null(input$sourceChoice) == TRUE && is.null(input$publicationChoice) == TRUE && is.null(input$variableChoice) == TRUE) {
+          TRUE
+        }
+        else{
+        desc(`Chosen variables count`)
+        }
+      ) %>%
+       select(
+        if(is.null(input$sourceChoice) == TRUE && is.null(input$publicationChoice) == TRUE && is.null(input$variableChoice) == TRUE) {
+           c('Source', 'Publication','Table','AllVariables')
+           }
+        else{
+           c('Source', 'Publication','Table','AllVariables','Chosen variables count')
+           }
       )
+      
   })
 
   output$hubTable2 <- renderDataTable({
     DT::datatable(
-      selectedDataset() %>%
-        distinct(Source, Publication, Table,AllVariables),
-      options = list(dom = "tp" # turn off search but keep pagination
+      selectedDataset()
+      ,options = list(dom = "tp" # turn off search but keep pagination
                      ,rowCallback = JS("function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
                                       "var full_text = 'Variables in this table: ' + aData[3]",
                                       "$('td:eq(2)', nRow).attr('data-title', full_text);",
@@ -181,7 +198,7 @@ server <- function(input, output, session) {
                      ,columnDefs = list(list(visible=FALSE, targets=c(3)))
       )
       , rownames = FALSE # get rid of rownames
-               
+      , escape = FALSE # allow hyperlink
     ) 
   })
   
