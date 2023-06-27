@@ -142,19 +142,14 @@ a {
     background-color: #fed8b1;
     color: black;
     font-size: 100%;
-    width:250px;
     padding: 1px 5px 2px 5px;
     bottom: -2.5em;
     z-index: 99999;
     visibility: hidden;
+    bottom:100%;
+    left:0%;
+    position:absolute;
 }
-
-[data-title]:hover:after {
-    opacity: 1;
-    transition: all 0.1s ease 0.5s;
-    visibility: visible;
-}
-
 
 [data-title]:hover:after {
     opacity: 1;
