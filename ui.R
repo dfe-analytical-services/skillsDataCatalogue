@@ -292,7 +292,7 @@ fluidPage(
             options = list(placeholder = "Choose a publication"),
             choices =
               C_AllVar %>%
-                distinct(Publication)
+                distinct(`Publication name`)
           )
         ),
         column(

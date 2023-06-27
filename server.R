@@ -111,12 +111,12 @@ server <- function(input, output, session) {
   observeEvent(input$publicationChoice, {
     updateSelectizeInput(session, "variableChoice",
       choices = (C_AllVar %>%
-        filter(Publication %in% input$publicationChoice) %>%
+        filter(`Publication name` %in% input$publicationChoice) %>%
         distinct(Variables))$Variables
     )
     updateSelectizeInput(session, "sourceChoice",
       choices = (C_AllVar %>%
-        filter(Publication %in% input$publicationChoice) %>%
+        filter(`Publication name` %in% input$publicationChoice) %>%
         distinct(Source))$Source
     )
   })
@@ -125,7 +125,7 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "publicationChoice",
       choices = (C_AllVar %>%
         filter(Source %in% input$sourceChoice) %>%
-        distinct(Publication))$Publication
+        distinct(`Publication name`))$`Publication name`
     )
     updateSelectizeInput(session, "variableChoice",
       choices = (C_AllVar %>%
@@ -138,7 +138,7 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "publicationChoice",
       choices = (C_AllVar %>%
         filter(Variables %in% input$variableChoice) %>%
-        distinct(Publication))$Publication
+        distinct(`Publication name`))$`Publication name`
     )
     updateSelectizeInput(session, "sourceChoice",
       choices = (C_AllVar %>%
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
         if (is.null(input$publicationChoice) == TRUE) {
           TRUE
         } else {
-          Publication %in% input$publicationChoice
+          `Publication name` %in% input$publicationChoice
         },
         if (is.null(input$variableChoice) == TRUE) {
           TRUE
@@ -169,7 +169,7 @@ server <- function(input, output, session) {
       )%>%
       count(Source, Publication, Table,AllVariables,name="Chosen variables count")%>%
       arrange(
-        if(is.null(input$sourceChoice) == TRUE && is.null(input$publicationChoice) == TRUE && is.null(input$variableChoice) == TRUE) {
+        if(is.null(input$variableChoice) == TRUE) {
           TRUE
         }
         else{
@@ -177,7 +177,7 @@ server <- function(input, output, session) {
         }
       ) %>%
        select(
-        if(is.null(input$sourceChoice) == TRUE && is.null(input$publicationChoice) == TRUE && is.null(input$variableChoice) == TRUE) {
+        if(is.null(input$variableChoice) == TRUE) {
            c('Source', 'Publication','Table','AllVariables')
            }
         else{
