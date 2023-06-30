@@ -170,7 +170,7 @@ fluidPage(
     well = FALSE,
     selected = "Data catalogue",
 
-    ## 2.1 User guide ---- 
+    ## 2.1 User guide ----
     tabPanel(
       "User guide",
       ### 2.1.1 Intro ----
@@ -178,7 +178,15 @@ fluidPage(
         12,
         h1("Skills data catalogue"),
         p(
-          "The Skills data catalogue provides helps access skills data. "
+          "The Skills Data Catalogue provides published data pertaining to skills from a variety of DfE sources in an easy to navigate format. "
+        ),
+        p("The aim of this dashboard is to allow users to:"),
+        tags$ul(
+          tags$li("Browse the variables/tables available relating to skills."),
+          tags$li("Ascertain if the variables of interest are available and where."),
+          tags$li("Determine true gaps in data available on skills and be able to highlight where there are user needs."),
+          tags$li("Provide a one-stop-shop for published data relating to skills."),
+          tags$li("Highlight appropriate contacts for different areas of skills data.")
         ),
         p(
           "This dashboard is produced by the ",
@@ -213,10 +221,10 @@ fluidPage(
             class = "panel-body",
             p("Use the navigation bar on the left to select the tab you want to view."),
             tags$ul(
-              tags$li(actionLink("link_to_tabpanel_catalogue", "Data catalogue"), " - this tab has a searchable catalogue of skills data."),
-            ),
-            tags$ul(
-              tags$li(actionLink("link_to_tabpanel_pubs", "Publications"), " - this tab has a list of relevant skills data publications."),
+              tags$li(actionLink("link_to_tabpanel_catalogue", "Data catalogue"), " - this tab has a searchable catalogue of skills data. Providing links to related publication tables."),
+              tags$li(actionLink("link_to_tabpanel_pubs", "Publications"), " - this tab has a list of relevant skills data publications across government departments."),
+              tags$li(actionLink("link_to_tabpanel_accessibility", "Accessibility"), "  provides Skills Data Catalogue accessibility statement, compliance requirements, limitations and opportunity to feedback on accessibility of the dashboard. "),
+              tags$li(actionLink("link_to_tabpanel_support", "Support and feedback:"), " provides links to the Unit for Future Skills and Department for Education Statistics Development inboxes for feedback and if you have any questions about the dashboard or the data it contains. ")
             )
           )
         )
@@ -240,16 +248,16 @@ fluidPage(
             tags$ul(
               tags$li("First release.")
             ),
-            tags$details(
-              label = "Previous updates",
-              inputId = "PreviousUpdate",
-              p(
-                p("xx/xx/xx (0.0.0)"),
-                tags$ul(
-                  tags$li("xxx")
-                )
-              )
-            ),
+            # tags$details(
+            #   label = "Previous updates",
+            #   inputId = "PreviousUpdate",
+            #   p(
+            #     p("xx/xx/xx (0.0.0)"),
+            #     tags$ul(
+            #       tags$li("xxx")
+            #     )
+            #   )
+            # ),
             h2("Future development"),
             p(
               "The dashboard will be kept up to date with the latest data shortly after it is released. If there are further data or dashboard features that you would find useful please contact us at ",
@@ -321,6 +329,10 @@ fluidPage(
       fluidRow(column(
         12,
         h1("Skills data publications")
+      )),
+      fluidRow(column(
+        12,
+        p("A list of relevant skills data publications across government departments")
       )),
       ### 2.3.1 Table ----
       fluidRow(column(

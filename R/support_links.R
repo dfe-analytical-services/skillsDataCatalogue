@@ -3,8 +3,9 @@ support_links <- function() {
     column(
       width = 12,
       h1("Give us feedback"),
+      p("This dashboard is a new service and is at the early stages of development. We are aware that there are issues with the matching of variables to the relevant published data. Work is underway with the service owner of EES and the data owners of the publications to improve the uniqueness of the variable names and the descriptions to improve matching and interpretation of the variables. "),
       p(
-        "This dashboard is a new service that we are developing. If you have any feedback or suggestions for improvements, please contact us at ",
+        "If you have any feedback or suggestions for improvements, please contact us at ",
         a(href = "mailto:ufs.contact@education.gov.uk", "ufs.contact@education.gov.uk", .noWS = c("after")), "."
       ),
       p(
@@ -19,7 +20,7 @@ support_links <- function() {
       h2("See the source code"),
       p(
         "The source code for this dashboard is available in our ",
-        a(href = "https://github.com/dfe-analytical-services/lsip_dashboard", "GitHub repository", .noWS = c("after")),
+        a(href = "https://github.com/dfe-analytical-services/skillsDataCatalogue", "GitHub repository", .noWS = c("after")),
         "."
       )
     ),
