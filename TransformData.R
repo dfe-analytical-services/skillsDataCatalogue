@@ -20,18 +20,18 @@ C_AllVarPt1 <- I_AllVar %>%
   row_to_names(row_number = 2) %>%
   rename(Table = Breakdown) %>%
   mutate(`Publication name` = Publication) %>%
-  mutate(Publication = paste0("<a href='", Link, "'>", Publication, "</a>")) %>%#get url
-  select(-Link)%>%
-  mutate(across(c(-Source, -Publication, -`Publication name`,-Table), ~ as.character(.))) %>% # get all as character
+  mutate(Publication = paste0("<a href='", Link, "'>", Publication, "</a>")) %>% # get url
+  select(-Link) %>%
+  mutate(across(c(-Source, -Publication, -`Publication name`, -Table), ~ as.character(.))) %>% # get all as character
   pivot_longer(!c("Source", "Publication name", "Publication", "Table"), names_to = "Variables", values_to = "count") %>% # make long
   filter(count == "x") %>% # just keep data
   select(-count) %>%
-  mutate(Variables = str_to_sentence(gsub("_", " ", Variables)))# Tidy variable names
-  #add on all variables
-C_AllVar<-C_AllVarPt1%>%
-  left_join(C_AllVarPt1%>%
-  group_by(Source, Publication, `Publication name`, Table) %>%
-  summarise(AllVariables = toString(Variables)))
+  mutate(Variables = str_to_sentence(gsub("_", " ", Variables))) # Tidy variable names
+# add on all variables
+C_AllVar <- C_AllVarPt1 %>%
+  left_join(C_AllVarPt1 %>%
+    group_by(Source, Publication, `Publication name`, Table) %>%
+    summarise(AllVariables = toString(Variables)))
 write.csv(C_AllVar, file = "./Data/AppData/C_AllVar.csv", row.names = FALSE)
 
 # Tidy up publications table

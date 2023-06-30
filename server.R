@@ -105,47 +105,90 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "navbar", "List of publications")
   })
 
+  # Create link to accessibilty tab
+  observeEvent(input$link_to_tabpanel_accessibility, {
+    updateTabsetPanel(session, "navbar", "Accessibility")
+  })
+
+  # Create link to publications tab
+  observeEvent(input$link_to_tabpanel_support, {
+    updateTabsetPanel(session, "navbar", "Support and feedback")
+  })
+
   ## 2.2 Table filters----
   ### 2.2.1 Filters----
 
-  observeEvent(input$publicationChoice, {
-    updateSelectizeInput(session, "variableChoice",
-      choices = (C_AllVar %>%
-        filter(`Publication name` %in% input$publicationChoice) %>%
-        distinct(Variables))$Variables
-    )
-    updateSelectizeInput(session, "sourceChoice",
-      choices = (C_AllVar %>%
-        filter(`Publication name` %in% input$publicationChoice) %>%
-        distinct(Source))$Source
-    )
-  })
+  observeEvent(input$publicationChoice,
+    {
+      updateSelectizeInput(session, "variableChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$publicationChoice) == TRUE) {
+            TRUE
+          } else {
+            `Publication name` %in% input$publicationChoice
+          }) %>%
+          distinct(Variables))$Variables
+      )
+      updateSelectizeInput(session, "sourceChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$publicationChoice) == TRUE) {
+            TRUE
+          } else {
+            `Publication name` %in% input$publicationChoice
+          }) %>%
+          distinct(Source))$Source
+      )
+    },
+    ignoreNULL = FALSE
+  )
 
-  observeEvent(input$sourceChoice, {
-    updateSelectizeInput(session, "publicationChoice",
-      choices = (C_AllVar %>%
-        filter(Source %in% input$sourceChoice) %>%
-        distinct(`Publication name`))$`Publication name`
-    )
-    updateSelectizeInput(session, "variableChoice",
-      choices = (C_AllVar %>%
-        filter(Source %in% input$sourceChoice) %>%
-        distinct(Variables))$Variables
-    )
-  })
-
-  observeEvent(input$variableChoice, {
-    updateSelectizeInput(session, "publicationChoice",
-      choices = (C_AllVar %>%
-        filter(Variables %in% input$variableChoice) %>%
-        distinct(`Publication name`))$`Publication name`
-    )
-    updateSelectizeInput(session, "sourceChoice",
-      choices = (C_AllVar %>%
-        filter(Variables %in% input$variableChoice) %>%
-        distinct(Source))$Source
-    )
-  })
+  observeEvent(input$sourceChoice,
+    {
+      updateSelectizeInput(session, "publicationChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$sourceChoice) == TRUE) {
+            TRUE
+          } else {
+            Source %in% input$sourceChoice
+          }) %>%
+          distinct(`Publication name`))$`Publication name`
+      )
+      updateSelectizeInput(session, "variableChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$sourceChoice) == TRUE) {
+            TRUE
+          } else {
+            Source %in% input$sourceChoice
+          }) %>%
+          distinct(Variables))$Variables
+      )
+    },
+    ignoreNULL = FALSE
+  )
+  # update when a variable change
+  observeEvent(input$variableChoice,
+    {
+      updateSelectizeInput(session, "publicationChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$variableChoice) == TRUE) {
+            TRUE
+          } else {
+            Variables %in% input$variableChoice
+          }) %>%
+          distinct(`Publication name`))$`Publication name`
+      )
+      updateSelectizeInput(session, "sourceChoice",
+        choices = (C_AllVar %>%
+          filter(if (is.null(input$variableChoice) == TRUE) {
+            TRUE
+          } else {
+            Variables %in% input$variableChoice
+          }) %>%
+          distinct(Source))$Source
+      )
+    },
+    ignoreNULL = FALSE
+  )
 
   ### 2.2.2 Table----
   selectedDataset <- reactive({
@@ -166,47 +209,47 @@ server <- function(input, output, session) {
         } else {
           Variables %in% input$variableChoice
         }
-      )%>%
-      count(Source, Publication, Table,AllVariables,name="Chosen variables count")%>%
+      ) %>%
+      count(Source, Publication, Table, AllVariables, name = "Chosen variables count") %>%
       arrange(
-        if(is.null(input$variableChoice) == TRUE) {
+        if (is.null(input$variableChoice) == TRUE) {
           TRUE
-        }
-        else{
-        desc(`Chosen variables count`)
+        } else {
+          desc(`Chosen variables count`)
         }
       ) %>%
-       select(
-        if(is.null(input$variableChoice) == TRUE) {
-           c('Source', 'Publication','Table','AllVariables')
-           }
-        else{
-           c('Source', 'Publication','Table','AllVariables','Chosen variables count')
-           }
+      select(
+        if (is.null(input$variableChoice) == TRUE) {
+          c("Source", "Publication", "Table", "AllVariables")
+        } else {
+          c("Source", "Publication", "Table", "AllVariables", "Chosen variables count")
+        }
       )
-      
   })
 
   output$hubTable2 <- renderDataTable({
     DT::datatable(
-      selectedDataset()
-      ,options = list(dom = "tp" # turn off search but keep pagination
-                     ,rowCallback = JS("function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
-                                      "var full_text = 'Variables in this table: ' + aData[3]",
-                                      "$('td:eq(2)', nRow).attr('data-title', full_text);",
-                                      "}")   
-                     ,columnDefs = list(list(visible=FALSE, targets=c(3)))
-      )
-      , rownames = FALSE # get rid of rownames
+      selectedDataset(),
+      options = list(
+        dom = "tp" # turn off search but keep pagination
+        , rowCallback = JS(
+          "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
+          "var full_text = 'Variables in this table: ' + aData[3]",
+          "$('td:eq(2)', nRow).attr('data-title', full_text);",
+          "}"
+        ),
+        columnDefs = list(list(visible = FALSE, targets = c(3)))
+      ),
+      rownames = FALSE # get rid of rownames
       , escape = FALSE # allow hyperlink
-    ) 
+    )
   })
-  
+
   ## 2.3 List of publications----
   ### 2.3.2 Table----
   output$pubTable <- DT::renderDataTable({
     DT::datatable(C_Pubs,
-      #options = list(dom = "tp") # turn off search
+      # options = list(dom = "tp") # turn off search
       escape = FALSE # allow hyperlink
       , rownames = FALSE
     ) # get rid of rownames
