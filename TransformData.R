@@ -17,7 +17,8 @@ library(janitor)
 
 # Tidy up data variables table
 C_AllVarPt1 <- I_AllVar %>%
-  rename(Source = X1, Table = Breakdown) %>%
+  row_to_names(row_number = 2) %>%
+  rename(Table = Breakdown) %>%
   mutate(`Publication name` = Publication) %>%
   mutate(Publication = paste0("<a href='", Link, "'>", Publication, "</a>")) %>%#get url
   select(-Link)%>%
