@@ -14,6 +14,6 @@ library(openxlsx) # use read.xlsx, read.csv
 sheetNum <- "AllVar"
 I_AllVar <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
 
-## 1.1 Load all variables list ----
+## 1.3 Load all publications list ----
 sheetNum <- "List of publications"
 I_Pubs <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
