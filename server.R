@@ -206,8 +206,8 @@ server <- function(input, output, session) {
   ### 2.3.2 Table----
   output$pubTable <- DT::renderDataTable({
     DT::datatable(C_Pubs,
-      options = list(dom = "t") # turn off search
-      , escape = FALSE # allow hyperlink
+      #options = list(dom = "tp") # turn off search
+      escape = FALSE # allow hyperlink
       , rownames = FALSE
     ) # get rid of rownames
   })
