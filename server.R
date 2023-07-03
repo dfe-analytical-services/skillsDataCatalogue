@@ -118,32 +118,12 @@ server <- function(input, output, session) {
   ## 2.2 Table filters----
   ### 2.2.1 Filters----
 
-  observeEvent(input$publicationChoice,
-    {
-      updateSelectizeInput(session, "variableChoice",
-        choices = (C_AllVar %>%
-          filter(if (is.null(input$publicationChoice) == TRUE) {
-            TRUE
-          } else {
-            `Publication name` %in% input$publicationChoice
-          }) %>%
-          distinct(Variables))$Variables
-      )
-      updateSelectizeInput(session, "sourceChoice",
-        choices = (C_AllVar %>%
-          filter(if (is.null(input$publicationChoice) == TRUE) {
-            TRUE
-          } else {
-            `Publication name` %in% input$publicationChoice
-          }) %>%
-          distinct(Source))$Source
-      )
-    },
-    ignoreNULL = FALSE
-  )
-
   observeEvent(input$sourceChoice,
     {
+      print("sourceChange")
+      print(input$sourceChoice)
+      print(input$publicationChoice)
+      print(input$variableChoice)
       updateSelectizeInput(session, "publicationChoice",
         choices = (C_AllVar %>%
           filter(if (is.null(input$sourceChoice) == TRUE) {
@@ -165,9 +145,43 @@ server <- function(input, output, session) {
     },
     ignoreNULL = FALSE
   )
+  
+  #update a publication change
+  observeEvent(input$publicationChoice,
+               {
+                 print("pubChange")
+                 print(input$sourceChoice)
+                 print(input$publicationChoice)
+                 print(input$variableChoice)
+                 updateSelectizeInput(session, "sourceChoice",
+                                      choices = (C_AllVar %>%
+                                                   filter(if (is.null(input$publicationChoice) == TRUE) {
+                                                     TRUE
+                                                   } else {
+                                                     `Publication name` %in% input$publicationChoice
+                                                   }) %>%
+                                                   distinct(Source))$Source
+                 )
+                 updateSelectizeInput(session, "variableChoice",
+                                      choices = (C_AllVar %>%
+                                                   filter(if (is.null(input$publicationChoice) == TRUE) {
+                                                     TRUE
+                                                   } else {
+                                                     `Publication name` %in% input$publicationChoice
+                                                   }) %>%
+                                                   distinct(Variables))$Variables
+                 )
+               },
+               ignoreNULL = FALSE
+  )
+  
   # update when a variable change
   observeEvent(input$variableChoice,
     {
+      print("varChange")
+      print(input$sourceChoice)
+      print(input$publicationChoice)
+      print(input$variableChoice)
       updateSelectizeInput(session, "publicationChoice",
         choices = (C_AllVar %>%
           filter(if (is.null(input$variableChoice) == TRUE) {
@@ -192,6 +206,10 @@ server <- function(input, output, session) {
 
   ### 2.2.2 Table----
   selectedDataset <- reactive({
+    print("dataset")
+    print(input$sourceChoice)
+    print(input$publicationChoice)
+    print(input$variableChoice)
     C_AllVar %>%
       filter(
         if (is.null(input$sourceChoice) == TRUE) {
