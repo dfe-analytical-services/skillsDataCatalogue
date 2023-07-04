@@ -140,7 +140,8 @@ server <- function(input, output, session) {
               Source %in% input$sourceChoice
             }
           ) %>%
-          distinct(Variables))$Variables
+          distinct(Variables)%>%
+            arrange(Variables))$Variables
       )
     }
     # ,ignoreNULL = FALSE
@@ -169,7 +170,8 @@ server <- function(input, output, session) {
               `Publication name` %in% input$publicationChoice
             }
           ) %>%
-          distinct(Variables))$Variables
+          distinct(Variables)%>%
+            arrange(Variables))$Variables
       )
     }
     # ,ignoreNULL = FALSE
