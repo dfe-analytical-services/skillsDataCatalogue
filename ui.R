@@ -279,6 +279,7 @@ fluidPage(
       "Data catalogue",
       ### 2.2.1 Filters ----
       fluidRow(column(12, h2("Filter to find a relevant table"))),
+      fluidRow(column(12, p("The link provided will connect you to the statistical release the required tables and variables are located within, please download the associated tables to find your required outputs."))),
       fluidRow(
         column(
           4,
@@ -311,10 +312,12 @@ fluidPage(
             label = NULL,
             options = list(placeholder = "Choose variables"),
             choices = C_AllVar %>%
-              distinct(Variables)
+              distinct(Variables) %>%
+              arrange(Variables)
           )
         )
       ),
+      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table."))),
       ### 2.2.2 Table ----
       fluidRow(column(
         12,
@@ -332,7 +335,7 @@ fluidPage(
       )),
       fluidRow(column(
         12,
-        p("A list of relevant skills data publications across government departments")
+        p("A non-exhaustive list of relevant skills data publications across government departments")
       )),
       ### 2.3.1 Table ----
       fluidRow(column(
