@@ -279,7 +279,7 @@ fluidPage(
       "Data catalogue",
       ### 2.2.1 Filters ----
       fluidRow(column(12, h2("Filter to find a relevant table"))),
-      fluidRow(column(12, p("The link provided will connect you to the statistical release the required tables and variables are located within, please download the associated tables to find your required outputs."))),
+      fluidRow(column(12, p("The Publication column link will connect you to the statistical release. The Table column link directs to the specific data table (some are direct downloads, others are EES permalink pages)."))),
       fluidRow(
         column(
           3,
@@ -331,7 +331,7 @@ fluidPage(
           )
         )
       ),
-      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table. Some table downloads are direct downloads."))),
+      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table."))),
       ### 2.2.2 Table ----
       fluidRow(column(
         12,
