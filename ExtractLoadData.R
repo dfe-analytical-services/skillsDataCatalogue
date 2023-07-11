@@ -11,8 +11,12 @@ library(openxlsx) # use read.xlsx, read.csv
 
 # 1.Variables ----
 ## 1.1 Load all variables list ----
-sheetNum <- "AllVar"
+sheetNum <- "AllVarLinks"
 I_AllVar <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
+
+## 1.2 Load variable lookup list ----
+sheetNum <- "AllVarName"
+I_AllVarName <- read.xlsx(xlsxFile = "./Data/SkillsDataUFS.xlsm", sheet = sheetNum, skipEmptyRows = T)
 
 ## 1.3 Load all publications list ----
 sheetNum <- "List of publications"

@@ -119,29 +119,43 @@ server <- function(input, output, session) {
   ### 2.2.1 Filters----
 
   observeEvent(
-    input$sourceChoice, {
+    input$themeChoice, {
       updateSelectizeInput(session, "publicationChoice",
         choices = (C_AllVar %>%
           filter(
-            if (is.null(input$sourceChoice) == TRUE) {
+            if (is.null(input$themeChoice) == TRUE) {
               TRUE
             } else {
-              Source %in% input$sourceChoice
+              Theme %in% input$themeChoice
             }
           ) %>%
           distinct(`Publication name`))$`Publication name`
       )
-      updateSelectizeInput(session, "variableChoice",
+      updateSelectizeInput(session, "metricChoice",
         choices = (C_AllVar %>%
           filter(
-            if (is.null(input$sourceChoice) == TRUE) {
+            if (is.null(input$themeChoice) == TRUE) {
               TRUE
             } else {
-              Source %in% input$sourceChoice
+              Theme %in% input$themeChoice
             }
+            ,Metric.or.Attribute=="Metric"
           ) %>%
           distinct(Variables)%>%
             arrange(Variables))$Variables
+      )
+      updateSelectizeInput(session, "attributeChoice",
+                           choices = (C_AllVar %>%
+                                        filter(
+                                          if (is.null(input$themeChoice) == TRUE) {
+                                            TRUE
+                                          } else {
+                                            Theme %in% input$themeChoice
+                                          }
+                                          ,Metric.or.Attribute=="Attribute"
+                                        ) %>%
+                                        distinct(Variables)%>%
+                                        arrange(Variables))$Variables
       )
     }
     # ,ignoreNULL = FALSE
@@ -150,7 +164,7 @@ server <- function(input, output, session) {
   # update a publication change
   observeEvent(
     input$publicationChoice, {
-      updateSelectizeInput(session, "sourceChoice",
+      updateSelectizeInput(session, "themeChoice",
         choices = (C_AllVar %>%
           filter(
             if (is.null(input$publicationChoice) == TRUE) {
@@ -159,9 +173,9 @@ server <- function(input, output, session) {
               `Publication name` %in% input$publicationChoice
             }
           ) %>%
-          distinct(Source))$Source
+          distinct(Theme))$Theme
       )
-      updateSelectizeInput(session, "variableChoice",
+      updateSelectizeInput(session, "metricChoice",
         choices = (C_AllVar %>%
           filter(
             if (is.null(input$publicationChoice) == TRUE) {
@@ -169,38 +183,55 @@ server <- function(input, output, session) {
             } else {
               `Publication name` %in% input$publicationChoice
             }
+            ,Metric.or.Attribute=="Metric"
           ) %>%
           distinct(Variables)%>%
             arrange(Variables))$Variables
+      )
+      updateSelectizeInput(session, "attributeChoice",
+                           choices = (C_AllVar %>%
+                                        filter(
+                                          if (is.null(input$themeChoice) == TRUE) {
+                                            TRUE
+                                          } else {
+                                            Theme %in% input$themeChoice
+                                          }
+                                          ,Metric.or.Attribute=="Attribute"
+                                        ) %>%
+                                        distinct(Variables)%>%
+                                        arrange(Variables))$Variables
       )
     }
     # ,ignoreNULL = FALSE
   )
 
   # update when a variable change
-  observeEvent(input$variableChoice,
+  observeEvent(list(input$metricChoice,input$attributeChoice),
     {
+      # print(list(input$metricChoice,input$attributeChoice))
+      # print((is.null(c(input$metricChoice,input$attributeChoice))))
+      # print(input$metricChoice,input$attributeChoice)
       updateSelectizeInput(session, "publicationChoice",
         choices = (C_AllVar %>%
           filter(
-            if (is.null(input$variableChoice) == TRUE) {
+            if (is.null(c(input$metricChoice,input$attributeChoice)) == TRUE ) {
               TRUE
             } else {
-              Variables %in% input$variableChoice
+              Variables %in% c(input$metricChoice,input$attributeChoice)
             }
           ) %>%
           distinct(`Publication name`))$`Publication name`
       )
-      updateSelectizeInput(session, "sourceChoice",
+      updateSelectizeInput(session, "themeChoice",
         choices = (C_AllVar %>%
           filter(
-            if (is.null(input$variableChoice) == TRUE) {
+            if (is.null(c(input$metricChoice,input$attributeChoice)) == TRUE ) {
               TRUE
             } else {
-              Variables %in% input$variableChoice
+              Variables %in% c(input$metricChoice,input$attributeChoice)
             }
           ) %>%
-          distinct(Source))$Source
+          distinct(Theme))$Theme
       )
     },
     ignoreNULL = FALSE
@@ -210,35 +241,35 @@ server <- function(input, output, session) {
   selectedDataset <- reactive({
     C_AllVar %>%
       filter(
-        if (is.null(input$sourceChoice) == TRUE) {
+        if (is.null(input$themeChoice) == TRUE) {
           TRUE
         } else {
-          Source %in% input$sourceChoice
+          Theme %in% input$themeChoice
         },
         if (is.null(input$publicationChoice) == TRUE) {
           TRUE
         } else {
           `Publication name` %in% input$publicationChoice
         },
-        if (is.null(input$variableChoice) == TRUE) {
-          TRUE
-        } else {
-          Variables %in% input$variableChoice
+        if (is.null(c(input$metricChoice,input$attributeChoice)) == TRUE ) {
+              TRUE
+            } else {
+              Variables %in% c(input$metricChoice,input$attributeChoice)
         }
       ) %>%
-      count(Source, Publication, Table, AllVariables, name = "Chosen variables count") %>%
+      count(Theme, Publication, Table, AllVariables, name = "Chosen variables count") %>%
       arrange(
-        if (is.null(input$variableChoice) == TRUE) {
+        if (is.null(c(input$metricChoice,input$attributeChoice)) == TRUE) {
           TRUE
         } else {
           desc(`Chosen variables count`)
         }
       ) %>%
       select(
-        if (is.null(input$variableChoice) == TRUE) {
-          c("Source", "Publication", "Table", "AllVariables")
+        if (is.null(c(input$metricChoice,input$attributeChoice))) {
+          c("Theme", "Publication", "Table", "AllVariables")
         } else {
-          c("Source", "Publication", "Table", "AllVariables", "Chosen variables count")
+          c("Theme", "Publication", "Table", "AllVariables", "Chosen variables count")
         }
       )
   })
