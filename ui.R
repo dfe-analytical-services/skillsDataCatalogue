@@ -282,18 +282,18 @@ fluidPage(
       fluidRow(column(12, p("The link provided will connect you to the statistical release the required tables and variables are located within, please download the associated tables to find your required outputs."))),
       fluidRow(
         column(
-          4,
+          3,
           selectizeInput(
-            "sourceChoice",
+            "themeChoice",
             multiple = TRUE,
             label = NULL,
-            options = list(placeholder = "Choose a source"),
+            options = list(placeholder = "Choose a theme"),
             choices = C_AllVar %>%
-              distinct(Source)
+              distinct(Theme)
           )
         ),
         column(
-          4,
+          3,
           selectizeInput(
             "publicationChoice",
             multiple = TRUE,
@@ -305,19 +305,33 @@ fluidPage(
           )
         ),
         column(
-          4,
+          3,
           selectizeInput(
-            "variableChoice",
+            "metricChoice",
             multiple = TRUE,
             label = NULL,
-            options = list(placeholder = "Choose variables"),
+            options = list(placeholder = "Choose metrics"),
             choices = C_AllVar %>%
+              filter(Metric.or.Attribute=="Metric")%>%
+              distinct(Variables) %>%
+              arrange(Variables)
+          )
+        ),
+        column(
+          3,
+          selectizeInput(
+            "attributeChoice",
+            multiple = TRUE,
+            label = NULL,
+            options = list(placeholder = "Choose attributes"),
+            choices = C_AllVar %>%
+              filter(Metric.or.Attribute=="Attribute")%>%
               distinct(Variables) %>%
               arrange(Variables)
           )
         )
       ),
-      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table."))),
+      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table. Some table downloads are direct downloads."))),
       ### 2.2.2 Table ----
       fluidRow(column(
         12,
