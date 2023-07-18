@@ -257,19 +257,23 @@ server <- function(input, output, session) {
               Variables %in% c(input$metricChoice,input$attributeChoice)
         }
       ) %>%
-      count(Theme, Publication, Table, AllVariables, name = "Chosen variables count") %>%
+      group_by(Theme, Publication, Table,AllVariables) %>% 
+     # summarise(VariableCount = n())%>%
+      mutate("Matched variables" = paste0(n(),": ",paste0(Variables, collapse = ", "))) %>%
+      slice(1)%>%
+     # count(Theme, Publication, Table, AllVariables, name = "Matched variables") %>%
       arrange(
         if (is.null(c(input$metricChoice,input$attributeChoice)) == TRUE) {
           TRUE
         } else {
-          desc(`Chosen variables count`)
+          desc(`Matched variables`)
         }
       ) %>%
       select(
         if (is.null(c(input$metricChoice,input$attributeChoice))) {
           c("Theme", "Publication", "Table", "AllVariables")
         } else {
-          c("Theme", "Publication", "Table", "AllVariables", "Chosen variables count")
+          c("Theme", "Publication", "Table", "AllVariables", "Matched variables")
         }
       )
   })
@@ -278,14 +282,15 @@ server <- function(input, output, session) {
     DT::datatable(
       selectedDataset(),
       options = list(
-        dom = "tp" # turn off search but keep pagination
+dom = "tp" # turn off search but keep pagination
         , rowCallback = JS(
           "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
           "var full_text = 'Variables in this table: ' + aData[3]",
           "$('td:eq(2)', nRow).attr('data-title', full_text);",
           "}"
         ),
-        columnDefs = list(list(visible = FALSE, targets = c(3)))
+        columnDefs = list(list(visible = FALSE, targets = c(3)),
+                          list(targets="_all", className = 'dt-top'))
       ),
       rownames = FALSE # get rid of rownames
       , escape = FALSE # allow hyperlink
@@ -296,8 +301,9 @@ server <- function(input, output, session) {
   ### 2.3.2 Table----
   output$pubTable <- DT::renderDataTable({
     DT::datatable(C_Pubs,
+                  options = list(columnDefs = list(list(targets="_all", className = 'dt-top')))
       # options = list(dom = "tp") # turn off search
-      escape = FALSE # allow hyperlink
+      ,escape = FALSE # allow hyperlink
       , rownames = FALSE
     ) # get rid of rownames
   })
