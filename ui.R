@@ -110,6 +110,8 @@ fluidPage(
     }
 }
 
+.dt-top {vertical-align: top;}
+
 "
       )
     ),
@@ -279,7 +281,9 @@ fluidPage(
       "Data catalogue",
       ### 2.2.1 Filters ----
       fluidRow(column(12, h2("Filter to find a relevant table"))),
-      fluidRow(column(12, p("The Publication column link will connect you to the statistical release. The Table column link directs to the specific data table (some are direct downloads, others are EES permalink pages)."))),
+      fluidRow(column(12, p("The Publication column link will connect you to the statistical release. 
+                            The Table column link directs to the specific data table (some are direct downloads, others are EES permalink pages).
+                             Supporting files are not currently shown."))),
       fluidRow(
         column(
           3,
