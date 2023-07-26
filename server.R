@@ -257,7 +257,7 @@ server <- function(input, output, session) {
               Variables %in% c(input$metricChoice,input$attributeChoice)
         }
       ) %>%
-      group_by(Theme, Publication, Table,AllVariables) %>% 
+      group_by(Theme, Publication, Table,`Underlying data`,AllVariables) %>% 
      # summarise(VariableCount = n())%>%
       mutate("Matched variables" = paste0(n(),": ",paste0(Variables, collapse = ", "))) %>%
       slice(1)%>%
@@ -271,9 +271,9 @@ server <- function(input, output, session) {
       ) %>%
       select(
         if (is.null(c(input$metricChoice,input$attributeChoice))) {
-          c("Theme", "Publication", "Table", "AllVariables")
+          c("Theme", "Publication", "Table","Underlying data", "AllVariables")
         } else {
-          c("Theme", "Publication", "Table", "AllVariables", "Matched variables")
+          c("Theme", "Publication", "Table","Underlying data", "AllVariables", "Matched variables")
         }
       )
   })
@@ -285,11 +285,11 @@ server <- function(input, output, session) {
 dom = "tp" # turn off search but keep pagination
         , rowCallback = JS(
           "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
-          "var full_text = 'Variables in this table: ' + aData[3]",
+          "var full_text = 'Variables in this table: ' + aData[4]",
           "$('td:eq(2)', nRow).attr('data-title', full_text);",
           "}"
         ),
-        columnDefs = list(list(visible = FALSE, targets = c(3)),
+        columnDefs = list(list(visible = FALSE, targets = c(4)),
                           list(targets="_all", className = 'dt-top'))
       ),
       rownames = FALSE # get rid of rownames
