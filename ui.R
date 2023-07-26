@@ -335,7 +335,8 @@ fluidPage(
           )
         )
       ),
-      fluidRow(column(12, p("Hover over a table name to see all the variables available in that table."))),
+      fluidRow(column(12, 
+                      p("Hover over a table name to see all the variables available in that table. If a table has no link it means the table is too big for the EES table builder - please refer to the underlying data files."))),
       ### 2.2.2 Table ----
       fluidRow(column(
         12,
