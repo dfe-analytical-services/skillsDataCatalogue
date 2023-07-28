@@ -21,22 +21,26 @@ C_AllVarPt1 <- I_AllVar %>%
   rename(Table = Breakdown) %>%
   #publication link
   mutate(`Publication name` = Publication) %>%
-  mutate(Publication = paste0("<a href='", Link, "'>", Publication, "</a>")) %>% # get url
-  select(-Link) %>%
+  mutate(Publication = paste0("<a href='", PubLink, "'>", Publication, "</a>")) %>% # get url
+  select(-PubLink,-`Table builder (all breakdowns)`) %>%
   #table link
-  mutate(`Table name` = Table) %>%
-  mutate(Table = paste0("<a href='", TableLink, "'>", Table, "</a>")) %>% # get url
-  select(-TableLink) %>%
+  mutate(Table = case_when(is.na(BreakdownLinkClean)==TRUE ~ Table,
+                           TRUE ~ paste0("<a href='", BreakdownLinkClean, "'>", Table, "</a>"))
+         )%>% # get url
+  select(-BreakdownLinkClean,-BreakdownLink) %>%
+  #data link
+  mutate('Underlying data' = paste0("<a href='", UnderlyingDataLink, "'>", UnderlyingData, "</a>")) %>% # get url
+  select(-UnderlyingDataLink,-UnderlyingData) %>%
   
-  mutate(across(c(-Theme, -Publication, -`Publication name`, -Table), ~ as.character(.))) %>% # get all as character
-  pivot_longer(!c("Theme", "Publication name", "Publication", "Table"), names_to = "Variables", values_to = "count") %>% # make long
+  mutate(across(c(-Theme, -Publication, -`Publication name`, -Table,-`Underlying data`), ~ as.character(.))) %>% # get all as character
+  pivot_longer(!c("Theme", "Publication name", "Publication", "Table","Underlying data"), names_to = "Variables", values_to = "count") %>% # make long
   filter(count == "x") %>% # just keep data
   select(-count) %>%
   mutate(Variables = str_to_sentence(gsub("_", " ", Variables))) # Tidy variable names
 # add on all variables
 C_AllVar <- C_AllVarPt1 %>%
   left_join(C_AllVarPt1 %>%
-    group_by(Theme, Publication, `Publication name`, Table) %>%
+    group_by(Theme, Publication, `Publication name`, Table,`Underlying data`) %>%
     summarise(AllVariables = toString(Variables)))%>%
 #add on attribute type
 left_join(I_AllVarName%>%
